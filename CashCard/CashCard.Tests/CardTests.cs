@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace CashCard.Tests
 {
@@ -12,10 +10,10 @@ namespace CashCard.Tests
         [Test]
         public void CreateCard_InvalidPinNumber_Throws()
         {
-            Assert.Throws<ArgumentException>(() => new Card(null));
-            Assert.Throws<ArgumentException>(() => new Card("123"));
-            Assert.Throws<ArgumentException>(() => new Card("12345"));
-            Assert.Throws<ArgumentException>(() => new Card("-123"));
+            Assert.Throws<InvalidPinException>(() => new Card(null));
+            Assert.Throws<InvalidPinException>(() => new Card("123"));
+            Assert.Throws<InvalidPinException>(() => new Card("12345"));
+            Assert.Throws<InvalidPinException>(() => new Card("-123"));
         }
 
         [Test]
@@ -29,15 +27,15 @@ namespace CashCard.Tests
         public void TopUp_IncorrectPin_Throws()
         {
             var card = new Card(PinNumber);
-            Assert.Throws<ArgumentException>(() => card.TopUp("9999", 10m));            
+            Assert.Throws<IncorrectPinException>(() => card.TopUp("9999", 10m));            
         }
 
         [Test]
         public void TopUp_InvalidAmount_Throws()
         {
             var card = new Card(PinNumber);
-            Assert.Throws<ArgumentException>(() => card.TopUp(PinNumber, -1m));
-            Assert.Throws<ArgumentException>(() => card.TopUp(PinNumber, 0m));
+            Assert.Throws<InvalidAmountException>(() => card.TopUp(PinNumber, -1m));
+            Assert.Throws<InvalidAmountException>(() => card.TopUp(PinNumber, 0m));
         }
 
         [Test]
@@ -53,24 +51,22 @@ namespace CashCard.Tests
         public void Withdraw_IncorrectPin_Throws()
         {
             var card = new Card(PinNumber);
-            Assert.Throws<ArgumentException>(() => card.Withdraw("9999", 10m));
+            Assert.Throws<IncorrectPinException>(() => card.Withdraw("9999", 10m));
         }
 
         [Test]
         public void Withdraw_InvalidAmount_Throws()
         {
             var card = new Card(PinNumber);
-            Assert.Throws<ArgumentException>(() => card.Withdraw(PinNumber, 0m));
-            Assert.Throws<ArgumentException>(() => card.Withdraw(PinNumber, -10m));
+            Assert.Throws<InvalidAmountException>(() => card.Withdraw(PinNumber, 0m));
+            Assert.Throws<InvalidAmountException>(() => card.Withdraw(PinNumber, -10m));
         }
 
         [Test]
         public void Withdraw_InsufficientFinds_CashNotDispensed()
         {
             var card = new Card(PinNumber);
-            var cashDispensed = card.Withdraw(PinNumber, 10m);
-
-            Assert.False(cashDispensed);
+            Assert.Throws<InsufficientFundsException>(() => card.Withdraw(PinNumber, 10m));
             Assert.AreEqual(0m, card.Balance);
         }
 
@@ -79,9 +75,7 @@ namespace CashCard.Tests
         {
             var card = new Card(PinNumber);
             card.TopUp(PinNumber, 50m);
-            var cashDispensed = card.Withdraw(PinNumber, 10m);
-
-            Assert.True(cashDispensed);
+            card.Withdraw(PinNumber, 10m);
             Assert.AreEqual(40m, card.Balance);
         }
 
@@ -90,9 +84,7 @@ namespace CashCard.Tests
         {
             var card = new Card(PinNumber);
             card.TopUp(PinNumber, 50m);
-            var cashDispensed = card.Withdraw(PinNumber, 50m);
-
-            Assert.True(cashDispensed);
+            card.Withdraw(PinNumber, 50m);
             Assert.AreEqual(0m, card.Balance);
         }
     }

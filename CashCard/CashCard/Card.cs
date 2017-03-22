@@ -1,5 +1,3 @@
-using System;
-
 namespace CashCard
 {
     public class Card
@@ -26,23 +24,20 @@ namespace CashCard
             }
         }
 
-        public bool Withdraw(string pin, decimal amount)
+        public void Withdraw(string pin, decimal amount)
         {
             EnsureCorrectPin(pin);
             EnsureAmountGreaterThanZero(amount);
 
-            var cashDispensed = false;
-
             lock (_transactionLock)
             {
-                if (Balance >= amount)
+                if (Balance < amount)
                 {
-                    Balance -= amount;
-                    cashDispensed = true;
+                    throw new InsufficientFundsException();
                 }
-            }
 
-            return cashDispensed;
+                Balance -= amount;
+            }            
         }     
 
         private static void EnsureValidPin(string pin)
@@ -51,18 +46,18 @@ namespace CashCard
 
             if (pin == null || pin.Length != 4 || !int.TryParse(pin, out pinNumber) || pinNumber < 0)
             {
-                throw new ArgumentException();
+                throw new InvalidPinException();
             }
         }
 
         private void EnsureCorrectPin(string pin)
         {
-            if (pin != _pin) throw new ArgumentException();
+            if (pin != _pin) throw new IncorrectPinException();
         }
 
         private static void EnsureAmountGreaterThanZero(decimal amount)
         {
-            if (amount <= 0) throw new ArgumentException();
+            if (amount <= 0) throw new InvalidAmountException();
         }
     }
 }

@@ -41,6 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Card.cs" />
+    <Compile Include="IncorrectPinException.cs" />
+    <Compile Include="InsufficientFundsException.cs" />
+    <Compile Include="InvalidAmountException.cs" />
+    <Compile Include="InvalidPinException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
